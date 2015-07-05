@@ -28,7 +28,7 @@ livePage.prototype.scanPage = function() {
       if (sheet) {
         // If it has a href we can monitor
         if (sheet.href) {
-          this.addResource(sheet.href, 'css', false, sheet.media.mediaText, sheet.ownerNode);
+          this.addResource(new CSSResource(sheet.href, sheet.ownerNode));
           var sheet_folder = sheet.href.replace(sheet.href.split('/').pop(), '');
         } else {
           var sheet_folder = '';
@@ -55,7 +55,7 @@ livePage.prototype.scanPage = function() {
                 return stack.join('/');
               });
 
-              this.addResource(rule_href(), 'import-css', false, sheet, sheet.ownerNode);
+              this.addResource(new BaseResource(rule_href());
             }
           }
         }
@@ -66,7 +66,7 @@ livePage.prototype.scanPage = function() {
   if (this.options.monitor_js == true) {
     elements = document.querySelectorAll('script[src*=".js"]');
     for (var key = 0; key < elements.length; key++) {
-      this.addResource(elements[key].src, 'js', false, false, null);
+      this.addResource(new BaseResource(elements[key].src));
     }
   }
 
@@ -75,13 +75,13 @@ livePage.prototype.scanPage = function() {
     for (var key = 0; key < elements.length; key++) {
       fileType = elements[key].href.split('.').pop();
       if (['css', 'html', 'js'].indexOf(fileType)) {
-        this.addResource(elements[key].href, 'custom', false, null);
+        this.addResource(new BaseResource(elements[key].href));
       }
     }
   }
 
   if (this.options.monitor_html == true) {
-    this.addResource(this.url, 'html', false, false, null);
+    this.addResource(new BaseResource(this.url));
   }
 
   // Randomise the checking process, so were not hitting groups the same of files.
@@ -95,16 +95,16 @@ livePage.prototype.scanPage = function() {
 /*
  * Adds live resources to the objects.
  */
-livePage.prototype.addResource = function(url, type, superior, media, ownerNode) {
+livePage.prototype.addResource = function(resource) {
   // Normalize the URL
-  url = this.normalizeURL(url);
+  resource.url = this.normalizeURL(resource.url);
 
   // Check the URL is ok
-  if (!this.trackableURL(url)) {
+  if (!this.trackableURL(resource.url)) {
     return false;
   }
 
-  this.resources[this.lastChecked++] = new LiveResource(url, type, media, ownerNode);
+  this.resources[this.lastChecked++] = resource;
 }
 
 /*
@@ -184,5 +184,5 @@ livePage.prototype.check = function() {
 
 if (typeof $livePageConfig == "object") {
   var $livePage = new livePage($livePageConfig);
-  $livePage.scanPage();
+  //$livePage.scanPage();
 }

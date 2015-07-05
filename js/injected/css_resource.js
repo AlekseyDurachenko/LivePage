@@ -1,20 +1,6 @@
-function CSSResource(url){
+function CSSResource(url, ownerNode){
   this.url = url;
-
-  // set the method, if it's a local file or html we need to check the HTML.
-  this.method = 'HEAD';
-  if (this.url.indexOf('file://') == 0 || $livePage.url.indexOf('file://') == 0 || $livePage.options.use_only_get == true) {
-    this.method = 'GET';
-  }
-
-  this.headers = {
-    "Etag": null,
-    "Last-Modified": null,
-    "Content-Length": null
-  };
-  this.cache = '';
-  this.response = '';
-  this.xhr = null;
+  this.element = ownerNode;
 }
 
 CSSResource.prototype = new BaseResource();

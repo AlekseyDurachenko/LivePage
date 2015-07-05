@@ -1,21 +1,16 @@
 function BaseResource(url){
   this.url = url;
-
-  // set the method, if it's a local file or html we need to check the HTML.
-  this.method = 'HEAD';
-  if (this.url.indexOf('file://') == 0 || $livePage.url.indexOf('file://') == 0 || $livePage.options.use_only_get == true) {
-    this.method = 'GET';
-  }
-
-  this.headers = {
-    "Etag": null,
-    "Last-Modified": null,
-    "Content-Length": null
-  };
-  this.cache = '';
-  this.response = '';
-  this.xhr = null;
 }
+
+BaseResource.prototype.cache = ''
+BaseResource.prototype.response = ''
+BaseResource.prototype.xhr = ''
+BaseResource.prototype.headers = {
+  "Etag": null,
+  "Last-Modified": null,
+  "Content-Length": null
+}
+
 
 /*
  * Generated a URL with a cache breaker in it.
@@ -27,6 +22,15 @@ BaseResource.prototype.nonCacheURL = function() {
   return this.url + '?livePage=' + (new Date() * 1);
 }
 
+/*
+ * Returns the method we should use
+ */
+BaseResource.prototype.method = function() {
+  if (this.url.indexOf("file://") == 0 || $livePage.url.indexOf("file://") == 0 || $livePage.options.use_only_get == true) {
+    return "GET";
+  }
+  return "HEAD";
+}
 
 /*
  * Checks if a newer version of the file is there.
@@ -37,7 +41,7 @@ BaseResource.prototype.check = function(callback) {
 
   this.xhr = new XMLHttpRequest();
 
-  this.xhr.open(this.method, this.nonCacheURL());
+  this.xhr.open(this.method(), this.nonCacheURL());
 
   this.xhr.onreadystatechange = function() {
 
