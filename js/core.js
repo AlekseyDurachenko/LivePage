@@ -149,6 +149,14 @@ livePages.prototype.start = function(tab) {
   chrome.tabs.executeScript(tab.id, {
     code: 'var $livePageConfig = ' + JSON.stringify(settings.options) + '; var $livePage = false;'
   });
+
+  chrome.tabs.executeScript(tab.id, {
+    file: 'js/injected/base_resource.js'
+  });
+  chrome.tabs.executeScript(tab.id, {
+    file: 'js/injected/css_resource.js'
+  });
+
   chrome.tabs.executeScript(tab.id, {
     file: 'js/injected/live_resource.js'
   });

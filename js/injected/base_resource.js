@@ -1,15 +1,9 @@
-/*
- * LiveResource Object
- */
-function LiveResource(url, type, media, ownerNode) {
+function BaseResource(url){
   this.url = url;
-  this.type = type;
-  this.element = ownerNode;
-  this.media = media;
 
   // set the method, if it's a local file or html we need to check the HTML.
   this.method = 'HEAD';
-  if (this.type == 'html' || this.url.indexOf('file://') == 0 || $livePage.url.indexOf('file://') == 0 || $livePage.options.use_only_get == true) {
+  if (this.url.indexOf('file://') == 0 || $livePage.url.indexOf('file://') == 0 || $livePage.options.use_only_get == true) {
     this.method = 'GET';
   }
 
@@ -26,7 +20,7 @@ function LiveResource(url, type, media, ownerNode) {
 /*
  * Generated a URL with a cache breaker in it.
  */
-LiveResource.prototype.nonCacheURL = function() {
+BaseResource.prototype.nonCacheURL = function() {
   if (this.url.indexOf('?') > 0) {
     return this.url + '&livePage=' + (new Date() * 1);
   }
@@ -37,7 +31,7 @@ LiveResource.prototype.nonCacheURL = function() {
 /*
  * Checks if a newer version of the file is there.
  */
-LiveResource.prototype.check = function(callback) {
+BaseResource.prototype.check = function(callback) {
   var _this = this;
   var _callback = callback;
 
@@ -82,7 +76,7 @@ LiveResource.prototype.check = function(callback) {
 /*
  * Cycles through the headers recieved looking for changes.
  */
-LiveResource.prototype.checkHeaders = function() {
+BaseResource.prototype.checkHeaders = function() {
   if (this.method == 'GET' && (this.url.indexOf('file://') == 0 || $livePage.url.indexOf('file://') == 0)) { // If it's a file, it will always send bad headers. So check the content.
     return true;
   }
@@ -101,7 +95,7 @@ LiveResource.prototype.checkHeaders = function() {
 /*
  * Compares the responseText to the cached. 
  */
-LiveResource.prototype.checkResponse = function() {
+BaseResource.prototype.checkResponse = function() {
   if (this.method == 'HEAD' || (this.response != '' && this.cache != this.response)) {
     this.cache = this.response;
     return true;
@@ -111,56 +105,9 @@ LiveResource.prototype.checkResponse = function() {
 }
 
 /*
- * Sets a session var of the last updated file.
- */
-LiveResource.prototype.sessionCache = function() {
-  cache = {};
-  cache.url = this.url;
-  cache.type = this.type;
-  cache.media = this.media;
-
-  sessionStorage.setItem('LivePage_LastUpdatedResource', JSON.stringify(cache));
-}
-
-/*
- * Refresh the code
- */
-LiveResource.prototype.refresh = function() {
-  // Update the Superior Resource, so it gets checked more frqeuently.
-  $livePage.superiorResource = this;
-
-  if (this.type == 'css') {
-    // create a new html element
-    var cssElement = document.createElement('link');
-    cssElement.setAttribute("type", "text/css");
-    cssElement.setAttribute("rel", "stylesheet");
-    cssElement.setAttribute("href", this.nonCacheURL() + "?LivePage=" + new Date() * 1);
-    cssElement.setAttribute("media", this.media);
-
-    $livePage.head.insertBefore(cssElement, this.element);
-    $livePage.head.removeChild(this.element);
-
-    this.element = cssElement;
-  } else {
-    // Cache the item last updated so we poll it more.
-    this.sessionCache();
-    // Now reload the page.
-    try {
-      // This can let us reload the page & force a cache reload.
-      chrome.extension.sendMessage({
-        action: 'reload'
-      }, function() {});
-    } catch (e) {
-      // An error occoured refreshing the page with the chrome socket. Do it differently.
-      document.location.reload($livePage.url);
-    }
-  }
-}
-
-/*
  * Tidies up HTML (Removes comments and whitespace), if the users wants.
  */
-LiveResource.prototype.tidyCode = function(html) {
+BaseResource.prototype.tidyCode = function(html) {
   if ($livePage.options.tidy_html == true) {
     // Remove comments and whitespace.
     html = html.replace(/<!--([\s\S]*?)-->/gim, '');
@@ -175,3 +122,20 @@ LiveResource.prototype.tidyCode = function(html) {
   }
   return html;
 }
+
+/*
+ * Refresh the code
+ */
+BaseResource.prototype.refresh = function() {
+  // Now reload the page.
+  try {
+    // This can let us reload the page & force a cache reload.
+    chrome.extension.sendMessage({
+      action: 'reload'
+    }, function() {});
+  } catch (e) {
+    // An error occoured refreshing the page with the chrome socket. Do it differently.
+    document.location.reload($livePage.url);
+  }
+}
+
