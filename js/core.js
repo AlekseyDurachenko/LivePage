@@ -151,17 +151,17 @@ livePages.prototype.start = function(tab) {
   });
 
   chrome.tabs.executeScript(tab.id, {
-    file: 'js/injected/base_resource.js'
+    file: '/js/injected/base_resource.js'
   });
   chrome.tabs.executeScript(tab.id, {
-    file: 'js/injected/css_resource.js'
+    file: '/js/injected/css_resource.js'
   });
 
+  //chrome.tabs.executeScript(tab.id, {
+    //file: 'js/injected/live_resource.js'
+  //});
   chrome.tabs.executeScript(tab.id, {
-    file: 'js/injected/live_resource.js'
-  });
-  chrome.tabs.executeScript(tab.id, {
-    file: 'js/injected/livepage.js'
+    file: '/js/injected/livepage.js'
   });
 }
 

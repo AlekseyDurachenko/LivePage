@@ -45,8 +45,13 @@ livePage.prototype.scanPage = function() {
                   return window.location.protocol + rule.href;
                 }
 
-                var stack = sheet_folder.replace(/\/$/, '').split('/'),
-                  parts = rule.href.split('/');
+                if (rule.href.indexOf("http://") == 0 || rule.href.indexOf("https://") == 0) {
+                  return rule.href;
+                }
+
+                var stack = sheet_folder.replace(/\/$/, '').split('/');
+                var parts = rule.href.split('/');
+
                 for (var i = 0; i < parts.length; i++) {
                   if (parts[i] == '.') continue;
                   if (parts[i] == '..') stack.pop();
@@ -55,7 +60,7 @@ livePage.prototype.scanPage = function() {
                 return stack.join('/');
               });
 
-              this.addResource(new BaseResource(rule_href());
+              this.addResource( new CSSResource( rule_href() ) );
             }
           }
         }
@@ -184,5 +189,5 @@ livePage.prototype.check = function() {
 
 if (typeof $livePageConfig == "object") {
   var $livePage = new livePage($livePageConfig);
-  //$livePage.scanPage();
+  $livePage.scanPage();
 }
